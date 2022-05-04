@@ -235,8 +235,8 @@ const ru = [
   },
   {
     code: 'Quote',
-    key: "э",
-    keyCaps: "Э",
+    key: 'э',
+    keyCaps: 'Э',
     keyUpperCase: 'Э',
   },
   {

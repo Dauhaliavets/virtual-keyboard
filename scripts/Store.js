@@ -4,9 +4,9 @@ class Store {
       isCapsLock: false,
       isShiftPress: false,
       pressedKey: '',
-			language: lang,
+      language: lang,
       output: [],
-			positionSelection: 0,
+      positionSelection: 0,
     };
     this.listeners = [];
   }

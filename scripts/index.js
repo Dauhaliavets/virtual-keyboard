@@ -5,7 +5,7 @@ import { Store } from './Store.js';
 
 const defaultLanguage = 'en';
 let langFromStorage = localStorage.getItem('lang');
-langFromStorage = langFromStorage ? langFromStorage : defaultLanguage;
+langFromStorage = langFromStorage || defaultLanguage;
 
 const body = document.querySelector('body');
 const store = new Store(langFromStorage);
@@ -14,7 +14,6 @@ const outputBlock = new Output(body, 'textarea', 'output-block', '', store);
 const keyboard = new Keyboard(body, 'div', 'keyboard', '', store);
 const descriptionBlock = new Element(body, 'h3', 'description', 'Клавиатура создана в операционной системе Windows');
 const languageBlock = new Element(body, 'h3', 'language', 'Для переключения языка комбинация: левыe ctrl + alt');
-
 
 window.keyboard = keyboard;
 window.store = store;

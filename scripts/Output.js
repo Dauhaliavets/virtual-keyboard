@@ -5,10 +5,10 @@ class Output extends Element {
     super(parentElement, htmlElement, classList, content);
     this.store = store;
     this.state = store.getState();
-		// this.node.setAttribute('readonly', 'true')
-		this.node.onclick = () => {
-			store.setState({positionSelection: this.node.selectionStart});
-		}
+    // this.node.setAttribute('readonly', 'true')
+    this.node.onclick = () => {
+      store.setState({ positionSelection: this.node.selectionStart });
+    };
     store.addListener(this);
     this.render();
   }
@@ -19,11 +19,11 @@ class Output extends Element {
   }
 
   render() {
-		// this.node.focus();
+    // this.node.focus();
     // this.node.innerHTML = '';
     this.node.textContent = this.state.output.join('');
 
-		this.node.setSelectionRange(this.state.positionSelection, this.state.positionSelection);
+    this.node.setSelectionRange(this.state.positionSelection, this.state.positionSelection);
   }
 }
 

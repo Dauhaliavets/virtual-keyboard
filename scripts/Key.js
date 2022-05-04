@@ -5,7 +5,7 @@ class Key extends Element {
     parentElement,
     htmlElement,
     classList,
-		content,
+    content,
     data,
     state,
     setStateAfterMouseDown,
