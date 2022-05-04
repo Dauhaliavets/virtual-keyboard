@@ -1,5 +1,10 @@
 @import './normalize.css';
 
+@font-face {
+	font-family: 'SF-Compact-Display-Thin';
+	src: url('../assets/fonts/sf-compact-display-thin.otf') format('opentype');
+}
+
 * {
 	margin: 0;
 	padding: 0;
