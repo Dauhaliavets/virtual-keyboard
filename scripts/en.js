@@ -86,8 +86,8 @@ const en = [
   {
     code: 'Tab',
     key: 'tab',
-    keyCaps: '___',
-    keyUpperCase: '___',
+    keyCaps: 'tab',
+    keyUpperCase: 'tab',
   },
   {
     code: 'KeyQ',
@@ -242,8 +242,8 @@ const en = [
   {
     code: 'Enter',
     key: 'enter',
-    keyCaps: '\n\r',
-    keyUpperCase: '\n\r',
+    keyCaps: 'enter',
+    keyUpperCase: 'enter',
   },
   {
     code: 'ShiftLeft',
