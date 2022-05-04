@@ -1,4 +1,4 @@
-import { Element } from './Element.js';
+import Element from './Element.js';
 
 class Output extends Element {
   constructor(parentElement, htmlElement, classList, content, store) {
@@ -7,9 +7,9 @@ class Output extends Element {
     this.state = store.getState();
     // this.node.setAttribute('readonly', 'true')
     this.node.onclick = () => {
-      store.setState({ positionSelection: this.node.selectionStart });
+      this.store.setState({ positionSelection: this.node.selectionStart });
     };
-    store.addListener(this);
+    this.store.addListener(this);
     this.render();
   }
 
@@ -27,4 +27,4 @@ class Output extends Element {
   }
 }
 
-export { Output };
+export default Output;

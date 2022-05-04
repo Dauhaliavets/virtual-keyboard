@@ -17,6 +17,10 @@ class Element {
   destroy() {
     this.node.remove();
   }
+
+  init() {
+    return this.node;
+  }
 }
 
-export { Element };
+export default Element;

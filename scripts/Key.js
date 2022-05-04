@@ -1,4 +1,4 @@
-import { Element } from './Element.js';
+import Element from './Element.js';
 
 class Key extends Element {
   constructor(
@@ -106,4 +106,4 @@ class Key extends Element {
   }
 }
 
-export { Key };
+export default Key;

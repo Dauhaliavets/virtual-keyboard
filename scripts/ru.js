@@ -386,4 +386,4 @@ const ru = [
   },
 ];
 
-export { ru };
+export default ru;

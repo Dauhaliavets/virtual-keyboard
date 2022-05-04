@@ -1,16 +1,21 @@
-import { Element } from './Element.js';
-import { Key } from './Key.js';
-import { en } from './en.js';
-import { ru } from './ru.js';
+import Element from './Element.js';
+import Key from './Key.js';
+import en from './en.js';
+import ru from './ru.js';
 
 class Keyboard extends Element {
   constructor(parentElement, htmlElement, classList, content, store) {
     super(parentElement, htmlElement, classList, content);
     this.store = store;
     this.state = store.getState();
-    store.addListener(this);
+    this.store.addListener(this);
     this.node.parentNode.onkeydown = (e) => this.onKeyDown(e);
     this.node.parentNode.onkeyup = (e) => this.onKeyUp(e);
+
+    this.pressed = new Set();
+
+    this.checkSwitchLang = () => this.setChangeLanguage();
+    this.switcLangCodes = ['ControlLeft', 'AltLeft'];
 
     this.keys = [];
     this.init();
@@ -35,25 +40,32 @@ class Keyboard extends Element {
     }
     this.switchData();
     localStorage.setItem('lang', newLang);
-    store.setState({ language: newLang });
+    this.store.setState({ language: newLang });
   }
 
   onKeyDown(e) {
     e.preventDefault();
-
     const { code } = e;
+    const position = this.state.positionSelection;
+    const content = this.state.output;
     let newState;
+
+    if (code === 'AltLeft' || code === 'ControlLeft') {
+      this.pressed.add(e.code);
+      for (let i = 0; i < this.switcLangCodes.length; i += 1) {
+        if (!this.pressed.has(this.switcLangCodes[i])) {
+          return;
+        }
+      }
+      this.pressed.clear();
+      this.checkSwitchLang();
+    }
+
     if (code === 'CapsLock') {
       newState = { isCapsLock: !this.state.isCapsLock, pressedKey: code };
     } else if (code === 'ShiftLeft' || code === 'ShiftRight') {
       newState = { isShiftPress: true, pressedKey: code };
-    } else if (
-      code === 'ControlLeft'
-			|| code === 'MetaLeft'
-			|| code === 'AltLeft'
-			|| code === 'AltRight'
-			|| code === 'ControlRight'
-    ) {
+    } else if (code === 'ControlLeft' || code === 'MetaLeft' || code === 'AltLeft' || code === 'AltRight' || code === 'ControlRight') {
       newState = { pressedKey: code };
     } else if (code === 'Tab') {
       newState = {
@@ -67,15 +79,11 @@ class Keyboard extends Element {
         output: [...this.state.output, '\n'],
       };
     } else if (code === 'Backspace') {
-      const position = this.state.positionSelection;
-      const content = this.state.output;
       const newContent = [...content.slice(0, position - 1), ...content.slice(position)];
-      store.setState({ output: newContent, positionSelection: position - 1 });
+      newState = { output: newContent, positionSelection: position - 1 };
     } else if (code === 'Delete') {
-      const position = this.state.positionSelection;
-      const content = this.state.output;
       const newContent = [...content.slice(0, position), ...content.slice(position + 1)];
-      store.setState({ output: newContent, positionSelection: position });
+      newState = { output: newContent, positionSelection: position };
     } else {
       const pressed = this.keys.filter((key) => key.code === code);
       newState = {
@@ -85,58 +93,36 @@ class Keyboard extends Element {
       };
     }
 
-    store.setState(newState);
+    this.store.setState(newState);
   }
 
   onKeyUp(e) {
-    console.log(this.state.positionSelection);
+    this.pressed.delete(e.code);
 
     const { code } = e;
-    const { isCapsLock } = this.state;
+    let { isShiftPress } = this.state;
     if (code === 'ShiftLeft' || code === 'ShiftRight') {
-      store.setState({ isShiftPress: false });
+      isShiftPress = false;
     }
     const newState = {
-      isCapsLock,
+      isShiftPress,
       pressedKey: '',
     };
-    store.setState(newState);
+    this.store.setState(newState);
   }
 
   setStateAfterMouseDown(newState) {
-    store.setState(newState);
-  }
-
-  runOnKeys(func, ...codes) {
-    const pressed = new Set();
-
-    document.addEventListener('keydown', (event) => {
-      pressed.add(event.code);
-
-      for (const code of codes) {
-        if (!pressed.has(code)) {
-          return;
-        }
-      }
-
-      pressed.clear();
-
-      func();
-    });
-
-    document.addEventListener('keyup', (event) => {
-      pressed.delete(event.code);
-    });
+    this.store.setState(newState);
   }
 
   update(state) {
     this.state = state;
+    this.switchData();
     this.render(this.keyFromLanguage);
   }
 
   init() {
     this.switchData();
-    this.runOnKeys(() => this.setChangeLanguage(), 'ControlLeft', 'AltLeft');
   }
 
   render(lang) {
@@ -148,4 +134,4 @@ class Keyboard extends Element {
   }
 }
 
-export { Keyboard };
+export default Keyboard;
