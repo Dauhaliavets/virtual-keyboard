@@ -7,16 +7,13 @@ class Keyboard extends Element {
   constructor(parentElement, htmlElement, classList, content, store) {
     super(parentElement, htmlElement, classList, content);
     this.store = store;
-    this.state = store.getState();
     this.store.addListener(this);
+    this.state = store.getState();
     this.node.parentNode.onkeydown = (e) => this.onKeyDown(e);
     this.node.parentNode.onkeyup = (e) => this.onKeyUp(e);
-
-    this.pressed = new Set();
-
     this.checkSwitchLang = () => this.setChangeLanguage();
     this.switcLangCodes = ['ControlLeft', 'AltLeft'];
-
+    // this.pressed = new Set();
     this.keys = [];
     this.init();
     this.render(this.keyFromLanguage);
@@ -45,51 +42,74 @@ class Keyboard extends Element {
 
   onKeyDown(e) {
     e.preventDefault();
+
     const { code } = e;
     const position = this.state.positionSelection;
     const content = this.state.output;
+		const pressed = this.state.pressedKeys;
     let newState;
+    let newContent;
+    let newPosition;
+
+		pressed.add(e.code);
 
     if (code === 'AltLeft' || code === 'ControlLeft') {
-      this.pressed.add(e.code);
+      newState = { pressedKeys: pressed };
+
+      this.store.setState(newState);
+
       for (let i = 0; i < this.switcLangCodes.length; i += 1) {
-        if (!this.pressed.has(this.switcLangCodes[i])) {
+        if (!pressed.has(this.switcLangCodes[i])) {
           return;
         }
       }
-      this.pressed.clear();
+      pressed.clear();
       this.checkSwitchLang();
     }
 
     if (code === 'CapsLock') {
-      newState = { isCapsLock: !this.state.isCapsLock, pressedKey: code };
+      newState = { isCapsLock: !this.state.isCapsLock, pressedKeys: pressed };
     } else if (code === 'ShiftLeft' || code === 'ShiftRight') {
-      newState = { isShiftPress: true, pressedKey: code };
+      newState = { isShiftPress: true, pressedKeys: pressed };
     } else if (code === 'ControlLeft' || code === 'MetaLeft' || code === 'AltLeft' || code === 'AltRight' || code === 'ControlRight') {
-      newState = { pressedKey: code };
+      newState = { pressedKeys: pressed };
     } else if (code === 'Tab') {
+      newPosition = position + 4;
+      newContent = [...content, '_', '_', '_', '_'];
       newState = {
-        pressedKey: code,
-        output: [...this.state.output, '____'],
-        positionSelection: this.state.positionSelection + 4,
+        pressedKeys: pressed,
+        output: newContent,
+        positionSelection: newPosition,
       };
     } else if (code === 'Enter') {
+      newPosition = position + 1;
+      newContent = [...content, '\n'];
       newState = {
-        pressedKey: code,
-        output: [...this.state.output, '\n'],
+        pressedKeys: pressed,
+        output: newContent,
+        positionSelection: newPosition,
       };
     } else if (code === 'Backspace') {
-      const newContent = [...content.slice(0, position - 1), ...content.slice(position)];
-      newState = { output: newContent, positionSelection: position - 1 };
+      if (position < 1) {
+        newPosition = 0;
+      } else {
+        newPosition = position - 1;
+      }
+      newContent = [...content.slice(0, newPosition), ...content.slice(position)];
+      newState = { output: newContent, positionSelection: newPosition };
     } else if (code === 'Delete') {
-      const newContent = [...content.slice(0, position), ...content.slice(position + 1)];
+      newContent = [...content.slice(0, position), ...content.slice(position + 1)];
       newState = { output: newContent, positionSelection: position };
     } else {
-      const pressed = this.keys.filter((key) => key.code === code);
+      const ind = this.keys.findIndex((key) => key.code === code);
+			const findPressed = this.keys[ind];
+
+      newPosition = position + 1;
+
       newState = {
-        pressedKey: code,
-        output: [...this.state.output, pressed[0].node.textContent],
-        positionSelection: this.state.positionSelection + 1,
+        pressedKeys: pressed,
+        output: [...content.slice(0, position), findPressed.node.textContent, ...content.slice(position)],
+        positionSelection: newPosition,
       };
     }
 
@@ -97,16 +117,18 @@ class Keyboard extends Element {
   }
 
   onKeyUp(e) {
-    this.pressed.delete(e.code);
-
-    const { code } = e;
+		const { code } = e;
     let { isShiftPress } = this.state;
+		const pressed = this.state.pressedKeys;
+
+    pressed.delete(e.code);
+
     if (code === 'ShiftLeft' || code === 'ShiftRight') {
       isShiftPress = false;
     }
     const newState = {
       isShiftPress,
-      pressedKey: '',
+      pressedKeys: pressed,
     };
     this.store.setState(newState);
   }

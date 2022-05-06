@@ -3,7 +3,7 @@ class Store {
     this.state = {
       isCapsLock: false,
       isShiftPress: false,
-      pressedKey: '',
+      pressedKeys: new Set(),
       language: lang,
       output: [],
       positionSelection: 0,

@@ -1,29 +1,18 @@
 import Element from './Element.js';
 
 class Key extends Element {
-  constructor(
-    parentElement,
-    htmlElement,
-    classList,
-    content,
-    data,
-    state,
-    setStateAfterMouseDown,
+  constructor( parentElement, htmlElement, classList, content, data, state, setStateAfterMouseDown,
   ) {
     super(parentElement, htmlElement, classList, content);
     this.code = data.code;
     this.key = data.key;
     this.keyCaps = data.keyCaps;
     this.keyUpperCase = data.keyUpperCase;
-
     this.state = state;
     this.setStateAfterMouseDown = (newState) => setStateAfterMouseDown(newState);
-
     this.node.textContent = this.key;
-
     this.node.onmousedown = () => this.onMouseDown();
     this.node.onmouseup = () => this.onMouseUp();
-
     this.update();
   }
 
@@ -38,20 +27,24 @@ class Key extends Element {
   onMouseDown() {
     const { code } = this;
     const { isCapsLock } = this.state;
+		const { pressedKeys } = this.state;
+		console.log('pressedKeys: ', pressedKeys)
+		pressedKeys.add(code);
+
     if (code === 'CapsLock') {
       this.setStateAfterMouseDown({
         isCapsLock: !this.state.isCapsLock,
-        pressedKey: code,
+        pressedKeys: pressedKeys,
       });
     } else if (code === 'ShiftLeft' || code === 'ShiftRight') {
-      this.setStateAfterMouseDown({ isShiftPress: true, pressedKey: code });
+      this.setStateAfterMouseDown({ isShiftPress: true, pressedKeys: pressedKeys });
     } else if (code === 'Backspace') {
       const newOutput = this.state.output.slice(0, this.state.output.length - 1);
-      this.setStateAfterMouseDown({ pressedKey: code, output: newOutput });
+      this.setStateAfterMouseDown({ pressedKeys: pressedKeys, output: newOutput });
     } else {
       const newState = {
         isCapsLock,
-        pressedKey: code,
+        pressedKeys: pressedKeys,
         output: [...this.state.output, this.node.textContent],
       };
       this.setStateAfterMouseDown(newState);
@@ -59,9 +52,12 @@ class Key extends Element {
   }
 
   onMouseUp = () => {
+		const { pressedKeys } = this.state;
+		pressedKeys.clear();
+
     const newState = {
       isShiftPress: false,
-      pressedKey: '',
+      pressedKeys,
     };
     this.setStateAfterMouseDown(newState);
   };
@@ -98,7 +94,7 @@ class Key extends Element {
       }
       return;
     }
-    if (this.state.pressedKey === this.code) {
+    if (this.state.pressedKeys.has(this.code)) {
       this.addClassKeyPress();
     } else {
       this.removeClassKeyPress();

@@ -7,6 +7,7 @@ class Output extends Element {
     this.state = store.getState();
     // this.node.setAttribute('readonly', 'true')
     this.node.onclick = () => {
+      console.log(this.node.selectionStart);
       this.store.setState({ positionSelection: this.node.selectionStart });
     };
     this.store.addListener(this);
@@ -19,7 +20,7 @@ class Output extends Element {
   }
 
   render() {
-    // this.node.focus();
+    this.node.focus();
     // this.node.innerHTML = '';
     this.node.textContent = this.state.output.join('');
 
