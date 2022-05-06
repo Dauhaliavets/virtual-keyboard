@@ -27,28 +27,59 @@ class Key extends Element {
   onMouseDown() {
     const { code } = this;
     const { isCapsLock } = this.state;
-		const { pressedKeys } = this.state;
-		console.log('pressedKeys: ', pressedKeys)
-		pressedKeys.add(code);
+		const keys = this.keys;
+		const position = this.state.positionSelection;
+    const content = this.state.output;
+		const pressed = this.state.pressedKeys;
+    let newState;
+    let newContent;
+    let newPosition;
 
-    if (code === 'CapsLock') {
-      this.setStateAfterMouseDown({
-        isCapsLock: !this.state.isCapsLock,
-        pressedKeys: pressedKeys,
-      });
+		pressed.add(code);
+
+		if (code === 'CapsLock') {
+      newState = { isCapsLock: !isCapsLock, pressedKeys: pressed };
     } else if (code === 'ShiftLeft' || code === 'ShiftRight') {
-      this.setStateAfterMouseDown({ isShiftPress: true, pressedKeys: pressedKeys });
-    } else if (code === 'Backspace') {
-      const newOutput = this.state.output.slice(0, this.state.output.length - 1);
-      this.setStateAfterMouseDown({ pressedKeys: pressedKeys, output: newOutput });
-    } else {
-      const newState = {
-        isCapsLock,
-        pressedKeys: pressedKeys,
-        output: [...this.state.output, this.node.textContent],
+      newState = { isShiftPress: true, pressedKeys: pressed };
+    } else if (code === 'ControlLeft' || code === 'MetaLeft' || code === 'AltLeft' || code === 'AltRight' || code === 'ControlRight') {
+      newState = { pressedKeys: pressed };
+    } else if (code === 'Tab') {
+      newPosition = position + 4;
+      newContent = [...content, '_', '_', '_', '_'];
+      newState = {
+        pressedKeys: pressed,
+        output: newContent,
+        positionSelection: newPosition,
       };
-      this.setStateAfterMouseDown(newState);
+    } else if (code === 'Enter') {
+      newPosition = position + 1;
+      newContent = [...content, '\n'];
+      newState = {
+        pressedKeys: pressed,
+        output: newContent,
+        positionSelection: newPosition,
+      };
+    } else if (code === 'Backspace') {
+      if (position < 1) {
+        newPosition = 0;
+      } else {
+        newPosition = position - 1;
+      }
+      newContent = [...content.slice(0, newPosition), ...content.slice(position)];
+      newState = { output: newContent, positionSelection: newPosition };
+    } else if (code === 'Delete') {
+      newContent = [...content.slice(0, position), ...content.slice(position + 1)];
+      newState = { output: newContent, positionSelection: position };
+    } else {
+      newPosition = position + 1;
+      newState = {
+        pressedKeys: pressed,
+        output: [...content.slice(0, position), this.node.textContent, ...content.slice(position)],
+        positionSelection: newPosition,
+      };
     }
+
+    this.setStateAfterMouseDown(newState);
   }
 
   onMouseUp = () => {

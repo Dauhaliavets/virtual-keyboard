@@ -5,11 +5,7 @@ class Output extends Element {
     super(parentElement, htmlElement, classList, content);
     this.store = store;
     this.state = store.getState();
-    // this.node.setAttribute('readonly', 'true')
-    this.node.onclick = () => {
-      console.log(this.node.selectionStart);
-      this.store.setState({ positionSelection: this.node.selectionStart });
-    };
+    this.node.onclick = () => this.store.setState({ positionSelection: this.node.selectionStart });
     this.store.addListener(this);
     this.render();
   }
@@ -21,9 +17,7 @@ class Output extends Element {
 
   render() {
     this.node.focus();
-    // this.node.innerHTML = '';
     this.node.textContent = this.state.output.join('');
-
     this.node.setSelectionRange(this.state.positionSelection, this.state.positionSelection);
   }
 }

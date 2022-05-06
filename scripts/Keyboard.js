@@ -13,7 +13,6 @@ class Keyboard extends Element {
     this.node.parentNode.onkeyup = (e) => this.onKeyUp(e);
     this.checkSwitchLang = () => this.setChangeLanguage();
     this.switcLangCodes = ['ControlLeft', 'AltLeft'];
-    // this.pressed = new Set();
     this.keys = [];
     this.init();
     this.render(this.keyFromLanguage);
@@ -46,7 +45,10 @@ class Keyboard extends Element {
     const { code } = e;
     const position = this.state.positionSelection;
     const content = this.state.output;
+		const switcLangCodes = this.switcLangCodes;
 		const pressed = this.state.pressedKeys;
+		const isCapsLock = this.state.isCapsLock;
+		const keys = this.keys; 
     let newState;
     let newContent;
     let newPosition;
@@ -58,8 +60,8 @@ class Keyboard extends Element {
 
       this.store.setState(newState);
 
-      for (let i = 0; i < this.switcLangCodes.length; i += 1) {
-        if (!pressed.has(this.switcLangCodes[i])) {
+      for (let i = 0; i < switcLangCodes.length; i += 1) {
+        if (!pressed.has(switcLangCodes[i])) {
           return;
         }
       }
@@ -68,7 +70,7 @@ class Keyboard extends Element {
     }
 
     if (code === 'CapsLock') {
-      newState = { isCapsLock: !this.state.isCapsLock, pressedKeys: pressed };
+      newState = { isCapsLock: !isCapsLock, pressedKeys: pressed };
     } else if (code === 'ShiftLeft' || code === 'ShiftRight') {
       newState = { isShiftPress: true, pressedKeys: pressed };
     } else if (code === 'ControlLeft' || code === 'MetaLeft' || code === 'AltLeft' || code === 'AltRight' || code === 'ControlRight') {
@@ -101,8 +103,8 @@ class Keyboard extends Element {
       newContent = [...content.slice(0, position), ...content.slice(position + 1)];
       newState = { output: newContent, positionSelection: position };
     } else {
-      const ind = this.keys.findIndex((key) => key.code === code);
-			const findPressed = this.keys[ind];
+      const ind = keys.findIndex((key) => key.code === code);
+			const findPressed = keys[ind];
 
       newPosition = position + 1;
 
