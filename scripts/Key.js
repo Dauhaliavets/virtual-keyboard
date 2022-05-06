@@ -27,7 +27,6 @@ class Key extends Element {
   onMouseDown() {
     const { code } = this;
     const { isCapsLock } = this.state;
-		const keys = this.keys;
 		const position = this.state.positionSelection;
     const content = this.state.output;
 		const pressed = this.state.pressedKeys;
@@ -96,8 +95,6 @@ class Key extends Element {
   update() {
     this.updateTextContent();
     this.updateClassList();
-
-		// console.log(this.state)
   }
 
   updateTextContent() {

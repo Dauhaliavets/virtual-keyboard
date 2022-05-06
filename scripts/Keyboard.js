@@ -11,7 +11,6 @@ class Keyboard extends Element {
     this.state = store.getState();
     this.node.parentNode.onkeydown = (e) => this.onKeyDown(e);
     this.node.parentNode.onkeyup = (e) => this.onKeyUp(e);
-    this.checkSwitchLang = () => this.setChangeLanguage();
     this.switcLangCodes = ['ControlLeft', 'AltLeft'];
     this.keys = [];
     this.init();
@@ -26,17 +25,14 @@ class Keyboard extends Element {
     }
   }
 
-  setChangeLanguage() {
-    const currentLang = this.state.language;
+  getSwitchedLanguage() {
     let newLang;
-    if (currentLang === 'en') {
+    if (this.state.language === 'en') {
       newLang = 'ru';
     } else {
       newLang = 'en';
     }
-    this.switchData();
-    localStorage.setItem('lang', newLang);
-    this.store.setState({ language: newLang });
+		return newLang;
   }
 
   onKeyDown(e) {
@@ -56,28 +52,29 @@ class Keyboard extends Element {
 		pressed.add(e.code);
 
     if (code === 'AltLeft' || code === 'ControlLeft') {
-      newState = { pressedKeys: pressed };
-
-      this.store.setState(newState);
-
+			newState = { pressedKeys: pressed };
       for (let i = 0; i < switcLangCodes.length; i += 1) {
         if (!pressed.has(switcLangCodes[i])) {
+					this.store.setState(newState);
           return;
         }
       }
-      pressed.clear();
-      this.checkSwitchLang();
+      let newLang = this.getSwitchedLanguage();
+			localStorage.setItem('lang', newLang);
+      newState = { pressedKeys: pressed, language: newLang };
+			this.store.setState(newState);
     }
-
     if (code === 'CapsLock') {
-      newState = { isCapsLock: !isCapsLock, pressedKeys: pressed };
+			if(!e.repeat) {
+				newState = { isCapsLock: !isCapsLock, pressedKeys: pressed };
+			}
     } else if (code === 'ShiftLeft' || code === 'ShiftRight') {
       newState = { isShiftPress: true, pressedKeys: pressed };
     } else if (code === 'ControlLeft' || code === 'MetaLeft' || code === 'AltLeft' || code === 'AltRight' || code === 'ControlRight') {
       newState = { pressedKeys: pressed };
     } else if (code === 'Tab') {
       newPosition = position + 4;
-      newContent = [...content, '_', '_', '_', '_'];
+      newContent = [...content.slice(0, position), ' ', ' ', ' ', ' ', ...content.slice(position)];
       newState = {
         pressedKeys: pressed,
         output: newContent,
@@ -105,7 +102,6 @@ class Keyboard extends Element {
     } else {
       const ind = keys.findIndex((key) => key.code === code);
 			const findPressed = keys[ind];
-
       newPosition = position + 1;
 			newContent = [...content.slice(0, position), findPressed.node.textContent, ...content.slice(position)]
       newState = {
@@ -114,16 +110,19 @@ class Keyboard extends Element {
         positionSelection: newPosition,
       };
     }
-
     this.store.setState(newState);
   }
 
   onKeyUp(e) {
+		e.preventDefault();
 		const { code } = e;
     let { isShiftPress } = this.state;
 		const pressed = this.state.pressedKeys;
 
-    pressed.delete(e.code);
+		console.log(e)
+		// console.log(this.state)
+    pressed.delete(code);
+    // pressed.clear();
 
     if (code === 'ShiftLeft' || code === 'ShiftRight') {
       isShiftPress = false;
@@ -132,6 +131,7 @@ class Keyboard extends Element {
       isShiftPress,
       pressedKeys: pressed,
     };
+		// console.log('newState: ', newState)
     this.store.setState(newState);
   }
 
