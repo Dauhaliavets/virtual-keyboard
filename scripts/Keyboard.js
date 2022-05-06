@@ -84,8 +84,8 @@ class Keyboard extends Element {
         positionSelection: newPosition,
       };
     } else if (code === 'Enter') {
-      newPosition = position + 1;
-      newContent = [...content, '\n'];
+			newPosition = position + 1;
+			newContent = [...content.slice(0, position), '\n', ...content.slice(position)]
       newState = {
         pressedKeys: pressed,
         output: newContent,
@@ -107,10 +107,10 @@ class Keyboard extends Element {
 			const findPressed = keys[ind];
 
       newPosition = position + 1;
-
+			newContent = [...content.slice(0, position), findPressed.node.textContent, ...content.slice(position)]
       newState = {
         pressedKeys: pressed,
-        output: [...content.slice(0, position), findPressed.node.textContent, ...content.slice(position)],
+        output: newContent,
         positionSelection: newPosition,
       };
     }

@@ -13,6 +13,7 @@ class Output extends Element {
   update(state) {
     this.state = state;
     this.render();
+		console.log(this.state)
   }
 
   render() {

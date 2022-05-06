@@ -53,7 +53,7 @@ class Key extends Element {
       };
     } else if (code === 'Enter') {
       newPosition = position + 1;
-      newContent = [...content, '\n'];
+			newContent = [...content.slice(0, position), '\n', ...content.slice(position)]
       newState = {
         pressedKeys: pressed,
         output: newContent,
@@ -96,6 +96,8 @@ class Key extends Element {
   update() {
     this.updateTextContent();
     this.updateClassList();
+
+		// console.log(this.state)
   }
 
   updateTextContent() {
