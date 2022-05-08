@@ -65,36 +65,41 @@ body {
 		#e7e7e7;
 	border: 1px solid rgba(0, 0, 0, 0.6);
 	box-sizing: border-box;
+	box-shadow: inset 0px 2px 0px #ececec;
 	border-radius: 6px;
 	padding: 6px;
 	text-align: center;
-	transition: all 0.5s ease-in;
+	transition: all 0.3s ease-in;
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	transform: scale(1, 1);
 	user-select: none;
+	animation-fill-mode: forwards;
 }
 .key:hover {
 	cursor: pointer;
 	background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #e9e9e9 100%),
 		#cecece;
-	border: 1px solid rgba(0, 0, 0, 0.7);
-	transition: all 0.2s ease-in;
+	transition: all 0.1s ease-in;
 }
 .key__press {
-	/* background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #ffffff 100%),
-		#e7e7e7; */
 	border: 2px solid rgba(0, 0, 0, 0.8);
-	box-shadow: inset 0px 10px 0px #f0f0f0;
-
+	box-shadow: inset 0px 8px 0px #ececec;
 	background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #e9e9e9 100%),
 		#cecece;
-	/* border: 1px solid rgba(0, 0, 0, 0.7); */
-	/* transition: all 0.2s ease-in; */
+	animation: press 0.1s ease-in-out;
+	animation-fill-mode: forwards;
+}
 
-	transform: scale(0.9, 0.9);
-	transition: all 0.2s ease-in;
+@keyframes press {
+	from { 
+		transform: scale(1, 1);
+		box-shadow: inset 0px 4px 0px #ececec;
+	}
+	to { 
+		transform: scale(0.9, 0.9);
+		box-shadow: inset 0px 6px 0px #ececec;
+	}
 }
 
 .key:nth-child(14) {
@@ -104,9 +109,11 @@ body {
 .key:nth-child(28) {
 	width: 80px;
 }
-.key:nth-child(29),
+.key:nth-child(29){
+	width: 95px;
+}
 .key:nth-child(41) {
-	width: 109px;
+	width: 123px;
 }
 .key:nth-child(29) {
 	position: relative;
