@@ -83,6 +83,57 @@ class Key extends Element {
         newPosition = position + 1;
       }
 			newState = { positionSelection: newPosition };
+		} else if (code === 'ArrowUp') {
+			let prevEnter = content.slice(0, position).lastIndexOf('\n');
+			if(prevEnter === -1) {
+				newPosition = 0;
+			} else {
+				let prevRowLength;
+				let curRowOffsetLeft = position - prevEnter - 1;
+				let prevRowEnterPosition = content.slice(0, prevEnter).lastIndexOf('\n');
+				if(prevRowEnterPosition === -1) {
+					prevRowLength = content.slice(0, prevEnter).length;
+				} else {
+					prevRowLength = content.slice(prevRowEnterPosition, prevEnter).length - 1;
+				}
+				if(curRowOffsetLeft >= prevRowLength) {
+					newPosition = position - curRowOffsetLeft - 1;
+				} else {
+					newPosition = position - curRowOffsetLeft - (prevRowLength - curRowOffsetLeft) - 1;
+				}
+			}	
+			newState = { pressedKeys: pressed, positionSelection: newPosition };
+		} else if (code === 'ArrowDown') {
+			let prevEnter = content.slice(0, position).lastIndexOf('\n');
+			let curRowOffsetLeft;
+			if (prevEnter === -1) {
+				curRowOffsetLeft = position;
+			} else {
+				curRowOffsetLeft = position - prevEnter - 1;
+			}
+			let nextEnterIndex = content.slice(position).indexOf('\n');
+			if(nextEnterIndex === -1) {
+				newPosition = content.length;
+			} 
+			else {
+				let nextEnterPosition = position + nextEnterIndex + 1;
+				let nextRowLength;
+				let nextRow = content.slice(nextEnterPosition);
+				let nextRowEnterPosition = nextRow.indexOf('\n');
+				if(nextRowEnterPosition === -1) {
+					nextRowLength = nextRow.length;
+				} else {
+					nextRowEnterPosition = position + nextRowEnterPosition + nextEnterIndex + 1;
+					nextRow = content.slice(nextEnterPosition, nextRowEnterPosition);
+					nextRowLength = nextRow.length;
+				}
+				if(curRowOffsetLeft >= nextRowLength) {
+					newPosition = position + nextEnterIndex + nextRowLength + 1;
+				} else {
+					newPosition = position + nextEnterIndex + curRowOffsetLeft + 1;
+				}
+			}	
+			newState = { pressedKeys: pressed, positionSelection: newPosition };
 		} else {
       newPosition = position + 1;
       newState = {
