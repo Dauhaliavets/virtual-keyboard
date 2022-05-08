@@ -32,7 +32,7 @@ class Keyboard extends Element {
     } else {
       newLang = 'en';
     }
-		return newLang;
+    return newLang;
   }
 
   onKeyDown(e) {
@@ -41,33 +41,33 @@ class Keyboard extends Element {
     const { code } = e;
     const position = this.state.positionSelection;
     const content = this.state.output;
-		const switcLangCodes = this.switcLangCodes;
-		const pressed = this.state.pressedKeys;
-		const isCapsLock = this.state.isCapsLock;
-		const keys = this.keys; 
+    const { switcLangCodes } = this;
+    const pressed = this.state.pressedKeys;
+    const { isCapsLock } = this.state;
+    const { keys } = this;
     let newState;
     let newContent;
     let newPosition;
 
-		pressed.add(e.code);
+    pressed.add(e.code);
 
     if (code === 'AltLeft' || code === 'ControlLeft') {
-			newState = { pressedKeys: pressed };
+      newState = { pressedKeys: pressed };
       for (let i = 0; i < switcLangCodes.length; i += 1) {
         if (!pressed.has(switcLangCodes[i])) {
-					this.store.setState(newState);
+          this.store.setState(newState);
           return;
         }
       }
-      let newLang = this.getSwitchedLanguage();
-			localStorage.setItem('lang', newLang);
+      const newLang = this.getSwitchedLanguage();
+      localStorage.setItem('lang', newLang);
       newState = { pressedKeys: pressed, language: newLang };
-			this.store.setState(newState);
+      this.store.setState(newState);
     }
     if (code === 'CapsLock') {
-			if(!e.repeat) {
-				newState = { isCapsLock: !isCapsLock, pressedKeys: pressed };
-			}
+      if (!e.repeat) {
+        newState = { isCapsLock: !isCapsLock, pressedKeys: pressed };
+      }
     } else if (code === 'ShiftLeft' || code === 'ShiftRight') {
       newState = { isShiftPress: true, pressedKeys: pressed };
     } else if (code === 'ControlLeft' || code === 'MetaLeft' || code === 'AltLeft' || code === 'AltRight' || code === 'ControlRight') {
@@ -81,8 +81,8 @@ class Keyboard extends Element {
         positionSelection: newPosition,
       };
     } else if (code === 'Enter') {
-			newPosition = position + 1;
-			newContent = [...content.slice(0, position), '\n', ...content.slice(position)]
+      newPosition = position + 1;
+      newContent = [...content.slice(0, position), '\n', ...content.slice(position)];
       newState = {
         pressedKeys: pressed,
         output: newContent,
@@ -100,77 +100,79 @@ class Keyboard extends Element {
       newContent = [...content.slice(0, position), ...content.slice(position + 1)];
       newState = { pressedKeys: pressed, output: newContent, positionSelection: position };
     } else if (code === 'ArrowLeft') {
-			if (position < 1) {
+      if (position < 1) {
         newPosition = 0;
       } else {
         newPosition = position - 1;
       }
-			newState = { pressedKeys: pressed, positionSelection: newPosition };
-		} else if (code === 'ArrowRight') {
-			if (position > content.length) {
+      newState = { pressedKeys: pressed, positionSelection: newPosition };
+    } else if (code === 'ArrowRight') {
+      if (position > content.length) {
         newPosition = content.length;
       } else {
         newPosition = position + 1;
       }
-			newState = { pressedKeys: pressed, positionSelection: newPosition };
-		} else if (code === 'ArrowUp') {
-			let prevEnter = content.slice(0, position).lastIndexOf('\n');
-			if(prevEnter === -1) {
-				newPosition = 0;
-			} else {
-				let prevRowLength;
-				let curRowOffsetLeft = position - prevEnter - 1;
-				let prevRowEnterPosition = content.slice(0, prevEnter).lastIndexOf('\n');
-				if(prevRowEnterPosition === -1) {
-					prevRowLength = content.slice(0, prevEnter).length;
-				} else {
-					prevRowLength = content.slice(prevRowEnterPosition, prevEnter).length - 1;
-				}
-				if(curRowOffsetLeft >= prevRowLength) {
-					newPosition = position - curRowOffsetLeft - 1;
-				} else {
-					newPosition = position - curRowOffsetLeft - (prevRowLength - curRowOffsetLeft) - 1;
-				}
-			}	
-			newState = { pressedKeys: pressed, positionSelection: newPosition };
-		} else if (code === 'ArrowDown') {
-			let prevEnter = content.slice(0, position).lastIndexOf('\n');
-			let curRowOffsetLeft;
-			if (prevEnter === -1) {
-				curRowOffsetLeft = position;
-			} else {
-				curRowOffsetLeft = position - prevEnter - 1;
-			}
-			let nextEnterIndex = content.slice(position).indexOf('\n');
-			if(nextEnterIndex === -1) {
-				newPosition = content.length;
-			} 
-			else {
-				let nextEnterPosition = position + nextEnterIndex + 1;
-				let nextRowLength;
-				let nextRow = content.slice(nextEnterPosition);
-				let nextRowEnterPosition = nextRow.indexOf('\n');
-				if(nextRowEnterPosition === -1) {
-					nextRowLength = nextRow.length;
-				} else {
-					nextRowEnterPosition = position + nextRowEnterPosition + nextEnterIndex + 1;
-					nextRow = content.slice(nextEnterPosition, nextRowEnterPosition);
-					nextRowLength = nextRow.length;
-				}
-				if(curRowOffsetLeft >= nextRowLength) {
-					newPosition = position + nextEnterIndex + nextRowLength + 1;
-				} else {
-					newPosition = position + nextEnterIndex + curRowOffsetLeft + 1;
-				}
-			}	
-			newState = { pressedKeys: pressed, positionSelection: newPosition };
-		} else {
+      newState = { pressedKeys: pressed, positionSelection: newPosition };
+    } else if (code === 'ArrowUp') {
+      const prevEnter = content.slice(0, position).lastIndexOf('\n');
+      if (prevEnter === -1) {
+        newPosition = 0;
+      } else {
+        let prevRowLength;
+        const curRowOffsetLeft = position - prevEnter - 1;
+        const prevRowEnterPosition = content.slice(0, prevEnter).lastIndexOf('\n');
+        if (prevRowEnterPosition === -1) {
+          prevRowLength = content.slice(0, prevEnter).length;
+        } else {
+          prevRowLength = content.slice(prevRowEnterPosition, prevEnter).length - 1;
+        }
+        if (curRowOffsetLeft >= prevRowLength) {
+          newPosition = position - curRowOffsetLeft - 1;
+        } else {
+          newPosition = position - curRowOffsetLeft - (prevRowLength - curRowOffsetLeft) - 1;
+        }
+      }
+      newState = { pressedKeys: pressed, positionSelection: newPosition };
+    } else if (code === 'ArrowDown') {
+      const prevEnter = content.slice(0, position).lastIndexOf('\n');
+      let curRowOffsetLeft;
+      if (prevEnter === -1) {
+        curRowOffsetLeft = position;
+      } else {
+        curRowOffsetLeft = position - prevEnter - 1;
+      }
+      const nextEnterIndex = content.slice(position).indexOf('\n');
+      if (nextEnterIndex === -1) {
+        newPosition = content.length;
+      } else {
+        const nextEnterPosition = position + nextEnterIndex + 1;
+        let nextRowLength;
+        let nextRow = content.slice(nextEnterPosition);
+        let nextRowEnterPosition = nextRow.indexOf('\n');
+        if (nextRowEnterPosition === -1) {
+          nextRowLength = nextRow.length;
+        } else {
+          nextRowEnterPosition = position + nextRowEnterPosition + nextEnterIndex + 1;
+          nextRow = content.slice(nextEnterPosition, nextRowEnterPosition);
+          nextRowLength = nextRow.length;
+        }
+        if (curRowOffsetLeft >= nextRowLength) {
+          newPosition = position + nextEnterIndex + nextRowLength + 1;
+        } else {
+          newPosition = position + nextEnterIndex + curRowOffsetLeft + 1;
+        }
+      }
+      newState = { pressedKeys: pressed, positionSelection: newPosition };
+    } else {
       const ind = keys.findIndex((key) => key.code === code);
-			if(ind === -1){
-				return;
-			}
+      if (ind === -1) {
+        return;
+      }
       newPosition = position + 1;
-			newContent = [...content.slice(0, position), keys[ind].node.textContent, ...content.slice(position)]
+      newContent = [
+        ...content.slice(0, position),
+        keys[ind].node.textContent,
+        ...content.slice(position)];
       newState = {
         pressedKeys: pressed,
         output: newContent,
@@ -181,10 +183,10 @@ class Keyboard extends Element {
   }
 
   onKeyUp(e) {
-		e.preventDefault();
-		const { code } = e;
+    e.preventDefault();
+    const { code } = e;
     let { isShiftPress } = this.state;
-		const pressed = this.state.pressedKeys;
+    const pressed = this.state.pressedKeys;
 
     pressed.delete(code);
 
