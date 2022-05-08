@@ -69,7 +69,21 @@ class Key extends Element {
     } else if (code === 'Delete') {
       newContent = [...content.slice(0, position), ...content.slice(position + 1)];
       newState = { output: newContent, positionSelection: position };
-    } else {
+    } else if (code === 'ArrowLeft') {
+			if (position < 1) {
+        newPosition = 0;
+      } else {
+        newPosition = position - 1;
+      }
+			newState = { positionSelection: newPosition };
+		} else if (code === 'ArrowRight') {
+			if (position > content.length) {
+        newPosition = content.length;
+      } else {
+        newPosition = position + 1;
+      }
+			newState = { positionSelection: newPosition };
+		} else {
       newPosition = position + 1;
       newState = {
         pressedKeys: pressed,
