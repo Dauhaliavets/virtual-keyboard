@@ -14,7 +14,7 @@ class Keyboard extends Element {
     this.switcLangCodes = ['ControlLeft', 'AltLeft'];
     this.keys = [];
     this.init();
-    this.render(this.keyFromLanguage);
+    this.render();
   }
 
   switchData() {
@@ -95,15 +95,82 @@ class Keyboard extends Element {
         newPosition = position - 1;
       }
       newContent = [...content.slice(0, newPosition), ...content.slice(position)];
-      newState = { output: newContent, positionSelection: newPosition };
+      newState = { output: newContent, positionSelection: newPosition, pressedKeys: pressed };
     } else if (code === 'Delete') {
       newContent = [...content.slice(0, position), ...content.slice(position + 1)];
-      newState = { output: newContent, positionSelection: position };
-    } else {
+      newState = { pressedKeys: pressed, output: newContent, positionSelection: position };
+    } else if (code === 'ArrowLeft') {
+			if (position < 1) {
+        newPosition = 0;
+      } else {
+        newPosition = position - 1;
+      }
+			newState = { pressedKeys: pressed, positionSelection: newPosition };
+		} else if (code === 'ArrowRight') {
+			if (position > content.length) {
+        newPosition = content.length;
+      } else {
+        newPosition = position + 1;
+      }
+			newState = { pressedKeys: pressed, positionSelection: newPosition };
+		} else if (code === 'ArrowUp') {
+			let prevEnter = content.slice(0, position).lastIndexOf('\n');
+			if(prevEnter === -1) {
+				newPosition = 0;
+			} else {
+				let prevRowLength;
+				let curRowOffsetLeft = position - prevEnter - 1;
+				let prevRowEnterPosition = content.slice(0, prevEnter).lastIndexOf('\n');
+				if(prevRowEnterPosition === -1) {
+					prevRowLength = content.slice(0, prevEnter).length;
+				} else {
+					prevRowLength = content.slice(prevRowEnterPosition, prevEnter).length - 1;
+				}
+				if(curRowOffsetLeft >= prevRowLength) {
+					newPosition = position - curRowOffsetLeft - 1;
+				} else {
+					newPosition = position - curRowOffsetLeft - (prevRowLength - curRowOffsetLeft) - 1;
+				}
+			}	
+			newState = { pressedKeys: pressed, positionSelection: newPosition };
+		} else if (code === 'ArrowDown') {
+			let prevEnter = content.slice(0, position).lastIndexOf('\n');
+			let curRowOffsetLeft;
+			if (prevEnter === -1) {
+				curRowOffsetLeft = position;
+			} else {
+				curRowOffsetLeft = position - prevEnter - 1;
+			}
+			let nextEnterIndex = content.slice(position).indexOf('\n');
+			if(nextEnterIndex === -1) {
+				newPosition = content.length;
+			} 
+			else {
+				let nextEnterPosition = position + nextEnterIndex + 1;
+				let nextRowLength;
+				let nextRow = content.slice(nextEnterPosition);
+				let nextRowEnterPosition = nextRow.indexOf('\n');
+				if(nextRowEnterPosition === -1) {
+					nextRowLength = nextRow.length;
+				} else {
+					nextRowEnterPosition = position + nextRowEnterPosition + nextEnterIndex + 1;
+					nextRow = content.slice(nextEnterPosition, nextRowEnterPosition);
+					nextRowLength = nextRow.length;
+				}
+				if(curRowOffsetLeft >= nextRowLength) {
+					newPosition = position + nextEnterIndex + nextRowLength + 1;
+				} else {
+					newPosition = position + nextEnterIndex + curRowOffsetLeft + 1;
+				}
+			}	
+			newState = { pressedKeys: pressed, positionSelection: newPosition };
+		} else {
       const ind = keys.findIndex((key) => key.code === code);
-			const findPressed = keys[ind];
+			if(ind === -1){
+				return;
+			}
       newPosition = position + 1;
-			newContent = [...content.slice(0, position), findPressed.node.textContent, ...content.slice(position)]
+			newContent = [...content.slice(0, position), keys[ind].node.textContent, ...content.slice(position)]
       newState = {
         pressedKeys: pressed,
         output: newContent,
@@ -119,10 +186,7 @@ class Keyboard extends Element {
     let { isShiftPress } = this.state;
 		const pressed = this.state.pressedKeys;
 
-		console.log(e)
-		// console.log(this.state)
     pressed.delete(code);
-    // pressed.clear();
 
     if (code === 'ShiftLeft' || code === 'ShiftRight') {
       isShiftPress = false;
@@ -131,7 +195,6 @@ class Keyboard extends Element {
       isShiftPress,
       pressedKeys: pressed,
     };
-		// console.log('newState: ', newState)
     this.store.setState(newState);
   }
 
@@ -142,17 +205,17 @@ class Keyboard extends Element {
   update(state) {
     this.state = state;
     this.switchData();
-    this.render(this.keyFromLanguage);
+    this.render();
   }
 
   init() {
     this.switchData();
   }
 
-  render(lang) {
+  render() {
     this.node.innerHTML = '';
 
-    this.keys = lang.map(
+    this.keys = this.keyFromLanguage.map(
       (item) => new Key(this.node, 'div', 'key', '', item, this.state, (newState) => this.setStateAfterMouseDown(newState)),
     );
   }
